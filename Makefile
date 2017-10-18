@@ -1,6 +1,8 @@
-CPPFLAGS = -std=c++11 -O2 -MMD
+
+CXX = /usr/local/bin/g++-7
+CPPFLAGS = -std=c++11 -O2 -fopenmp -MMD
 AFLAGS =  -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo
-LDFLAGS = -std=c++11 `pkg-config --libs lib/glfw3.pc` 
+LDFLAGS =  `pkg-config --libs lib/glfw3.pc` 
 N=55
 
 SRCS = src/cross.cpp src/Collision.cpp src/circle.cpp src/Disks.cpp src/animation.cpp src/RotationSim.cpp src/stats.cpp src/next-event.cpp src/process-event.cpp
@@ -13,11 +15,11 @@ build/lib/glew.o: glew.c
 	gcc -c $< -o $@ $(LDFLAGS)
 
 build/%.o: src/%.cpp 
-	g++ $(CPPFLAGS) -c -o $@ $<
+	$(CXX) $(CPPFLAGS) -c -o $@ $<
 
 
 RotationSim: ${OBJS}
-	g++ $(CPPFLAGS) $^ -o $@ $(LDFLAGS) $(AFLAGS)
+	$(CXX) $(CPPFLAGS) $^ -o $@ $(LDFLAGS) $(AFLAGS)
 
 .PHONY: clean
 

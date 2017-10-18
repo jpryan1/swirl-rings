@@ -54,6 +54,7 @@ class Disks{
 	
 	//		FIND NEXT EVENT
 	//
+	void fillCells();
 	void nextCollisions(std::vector<Collision>& currentCollisions);
 	Collision nextDiskCollision(Disk& a, Disk& b);
 	Collision nextWallCollision(Disk& disk);
@@ -72,6 +73,7 @@ class Disks{
 	void processCollision(Collision& collision);
 	void processNormalCollision(Collision& collision);
 	void processWallCollision(Collision& collision);
+	void processInnerWallCollision(Collision& collision);
 	void swirl();
 	
 	
