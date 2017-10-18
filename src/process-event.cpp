@@ -139,10 +139,10 @@ void Disks::processWallCollision(Collision& collision){
 
 	Disk s = *(collision.disks[0]);
 	vec rad(s.pos[0]-boundpos[0],s.pos[1]-boundpos[1]);
-	if(DO_ANNULUS && rad.norm()>25){
-		processInnerWallCollision(collision);
-		return;
-	}
+//	if(DO_ANNULUS && rad.norm()>25){
+//		processInnerWallCollision(collision);
+//		return;
+//	}
 
 
 	double angv = s.ang_vel;
