@@ -1,6 +1,6 @@
 #include "Disks.h"
-
-
+#include <assert.h>
+#include <omp.h>
 Animation* Disks::animation;
 //TODO currentCollisions probably doesn't need to be vector!
 
@@ -8,10 +8,14 @@ Animation* Disks::animation;
 void Disks::initialize(int N){
 	this->num_of_disks = N;
 	disks = new Disk[N];
+
+	
+	cells = new std::vector<int>[30*30];
+	nbinx = 30;
 	//Initialize boundary variables
 	this->boundpos[0] = 0;
 	this->boundpos[1] = 0;
-	this->boundvel[0] = 0.5;
+	this->boundvel[0] = 2;//0.5;
 	this->boundvel[1] = 0;
 	this->swirl_time=0;
 	
@@ -19,6 +23,7 @@ void Disks::initialize(int N){
 	std::ifstream input("input.txt", std::ifstream::in);
 	for(int i=0; i<N; i++){
 		input >> disks[i].pos[0] >> disks[i].pos[1] >> disks[i].vel[0] >> disks[i].vel[1];
+		if(GAS) disks[i].vel[1]+=1;
 		disks[i].ID = i;
 		disks[i].ang = 0;
 		disks[i].ang_vel = 0;
@@ -33,7 +38,8 @@ void Disks::initialize(int N){
 		animation->notReady = false;
 	}
 	
-	
+	inner_ang=0;
+	inner_vel=0;
 	//stats.initialize(N);
 	//stats.update(disks, boundpos,boundvel, -1);
 }
@@ -120,27 +126,28 @@ Collision Disks::nextWallCollision(Disk& a){
 			time = -1;
 		}
 	}
-	
-//	double firsttime = time;
-//	
-//	
-//	C = pow(dp0,2) + pow(dp1,2) - pow(20+1, 2);
-//	det = B*B-4*A*C;
-//	
-//	if(det<0){
-//		return Collision(firsttime, a);
-//	}else{
-//		double t = (0.0 - B + sqrt(det))/(2*A);
-//		if(t>1e-13){
-//			time = t;
-//		}
-//		else{
-//			return Collision(firsttime, a);
-//		}
-//	}
-//
-//	if(firsttime==-1) return Collision(time, a);
-//	if(firsttime>time) std::cout<<"inner in "<<time<<std::endl;
+	if(DO_ANNULUS){
+		double secondtime;
+		C = pow(dp0,2) + pow(dp1,2) - pow(21, 2);
+		det = B*B-4*A*C;
+		if(det<0){
+			secondtime = -1;
+		}else{
+			double t = (0.0 - B -sqrt(det))/(2*A);
+			if(t>1e-13){
+				secondtime = t;
+			}
+			else{
+				secondtime = -1;
+			}
+		}
+
+		if(secondtime>0){
+			if(time<0) return Collision(secondtime,a);
+			if(secondtime<time) return Collision(secondtime,a);
+		
+		}
+	}
 	return Collision( time, a);
 	
 }
@@ -157,17 +164,88 @@ void Disks::nextCollisions(std::vector<Collision>& currentCollisions){
 	
 }
 
+
+void Disks::fillCells(){
+	for(int i=0; i<nbinx*nbinx; i++){
+		cells[i].clear();
+	}
+	for(int i=0; i<num_of_disks; i++){
+		int binx = (int) floor((30+disks[i].pos[0]-boundpos[0])/2.01);
+		int biny = (int) floor((30+disks[i].pos[1]-boundpos[1])/2.01);
+		int t = binx + biny*nbinx;
+		assert(t<nbinx*nbinx);
+		cells[t].push_back(i);
+	}
+
+}
+
 void Disks::checkDiskCollisions( std::vector<Collision>& currentCollisions ){
+	if(GAS) return;
 	Collision collision;
-	
-	for(int i=0; i<num_of_disks-1; i++){
-		for(int j=i+1; j<num_of_disks; j++){
-			collision = nextDiskCollision(disks[i], disks[j]);
-			if(collision.getTime() == -1) continue;
-			addCollision(currentCollisions, collision);
+	fillCells();
+	std::vector<int> first, second;
+	//FOR EVERY BIN
+	double best_time = 5;
+	int disk1=-1;
+	int disk2 = -1;
+
+
+	//#pragma omp parallel for num_threads(8)
+	for(int k=0;k<nbinx*nbinx; k++){
+		int i = k/nbinx;
+		int j = k%nbinx;
+		//FOR EVERY DISK IN THAT BIN
+			int bin = i+j*nbinx;
+			for(int d =0; d<cells[bin].size(); d++){
+
+			//FOR EVERY SURROUNDING BIN
+			for(int deltax = -1; deltax<=1; deltax++){
+				for(int deltay = -1; deltay <=1; deltay++){
+					int binx = i+deltax;
+					int biny = j+deltay;
+
+					if(binx<0||binx>=nbinx||biny<0||biny>=nbinx){
+						continue;
+					}
+					
+					int otherbin =binx + nbinx*biny;
+					//FOR EVERY DISK IN THAT SURROUNDING BIN
+					for(int oth =0; oth<cells[otherbin].size(); oth++){
+						first = cells[bin];
+						second = cells[otherbin];
+						int a = first[d];
+						
+						int b = second[oth];
+
+						if(a<b){
+							
+							collision = nextDiskCollision(disks[a], disks[b]);
+							double t = collision.getTime();
+							if(t != -1){ 
+								if(best_time>t){
+									//#pragma omp atomic
+									best_time = t;
+									//#pragma omp atomic
+									disk1 = a;
+									//#pragma omp atomic
+									disk2 = b;
+								}
+							}
+						}	
+					}
+				}
+			}
 		}
 	}
+	if(disk1!=-1){
+		collision = nextDiskCollision(disks[disk1], disks[disk2]);
+		addCollision(currentCollisions, collision);
+
+
+	}
 }
+
+
 
 void Disks::checkWallCollisions( std::vector<Collision>& currentCollisions ){
 	
@@ -307,53 +385,106 @@ void Disks::processNormalCollision(Collision& collision){
 	//So named because it is the same for both disks
 	
 	//Part 3b - r0 is x2vel minus x1vel
-	double r0 = par1.norm() - par2.norm() + angv1 + angv2;
-	int s0 = (r0>0) ? 1 : -1;
-	double t = (r0)/(4*mu*s0*DELTA);
+	vec r0unit(unit.a[1], -unit.a[0]);
+	
+	vec r0 = par1.minus(par2).add(r0unit.times(angv1+angv2));
+	int s0 = (r0.dot(r0unit) > 0 ? 1 : -1);
+	
+	//Part 3c - apply sticking rules
+	double t = (r0.norm())/(4*mu*DELTA);
 	if(mu==0){
 		t=0;
 	}
-	
-	
-	//Part 3c - apply sticking rules
-	
 	t = fmin(t, 1);
 	double impulse = mu*s0*DELTA*t;
-	vec unitPar1, unitPar2, newPar1, newPar2;
 	
-	if(par1.norm()!=0||par2.norm()!=0){
-		if(par1.norm()==0){
-			unitPar2 = par2.times(1.0/par2.norm());
-			unitPar1 = vec(unitPar2.a);
-		}
-		else if(par2.norm()==0){
-			unitPar1 = par1.times(1.0/par1.norm());
-			unitPar2 = vec(unitPar1.a);
-		}
-		else{
-			unitPar1 = par1.times(1.0/par1.norm());
-			unitPar2 = par2.times(1.0/par2.norm());
-		}
-		newPar1 = unitPar1.times(par1.norm()-impulse);
-		newPar2 = unitPar2.times(par2.norm()+impulse);
-		memcpy(collision.disks[0]->vel, newPar1.add(newPerp1).a, 2*sizeof(double));
-		memcpy(collision.disks[1]->vel, newPar2.add(newPerp2).a, 2*sizeof(double));
-	}else{
-		memcpy(collision.disks[0]->vel, newPerp1.a, 2*sizeof(double));
-		memcpy(collision.disks[1]->vel, newPerp2.a, 2*sizeof(double));
-	}
+	vec newPar1 = par1.minus(r0unit.times(impulse));
+	vec newPar2 = par2.add(r0unit.times(impulse));
+	
+	memcpy(collision.disks[0]->vel, newPar1.add(newPerp1).a, 2*sizeof(double));
+	memcpy(collision.disks[1]->vel, newPar2.add(newPerp2).a, 2*sizeof(double));
 	angv1 -= impulse;
 	angv2 -= impulse;
 	collision.disks[0]->ang_vel = angv1;
 	collision.disks[1]->ang_vel = angv2;
 	
 }
+
+
+
 void Disks::processWallCollision(Collision& collision){
 
+
+
 	Disk s = *(collision.disks[0]);
+	vec rad(s.pos[0]-boundpos[0],s.pos[1]-boundpos[1]);
+	if(DO_ANNULUS && rad.norm()>25){
+		processInnerWallCollision(collision);
+		return;
+	}
+
+
 	double angv = s.ang_vel;
 	vec bv(boundvel);
+
+
+	if(DO_ANNULUS){
+		vec rotatedrad(-(s.pos[1]-boundpos[1]),  s.pos[0]-boundpos[0]);
+		rotatedrad = rotatedrad.times(5.0/rotatedrad.norm());
+		bv = bv.add(rotatedrad);
+	}
+	double radNorm = rad.norm();
+	rad = rad.times(1/radNorm); //rad is normal.
+	
+	
+	vec newVel(s.vel);
+	newVel = newVel.minus(bv);  //now we're in stationary boundary frame of reference
+	
+	vec perp = rad.times(newVel.dot(rad));
+	vec par = newVel.minus(perp);
+	perp = perp.times(-1); //bonk
+	double DELTA = 2*perp.norm();
+	double t;
+	
+
+	
+	vec r0unit(-rad.a[1], rad.a[0]);
+	vec r0 = par.add(r0unit.times(angv));
+	int s0 = (r0.dot(r0unit) > 0 ? 1 : -1);
+	if(wmu==0){
+		t=0;
+	}else{
+		t = (r0.norm())/(2*wmu*DELTA);
+	
+	}
+	t=fmin(t,1);
+	double impulse = wmu*s0*DELTA*t;
+	
+	vec newPar = par.minus(r0unit.times(impulse));
+	angv -= impulse;
+	
+	perp = perp.add(newPar);
+	perp = perp.add(bv);
+	for(int i=0; i<2; i++) collision.disks[0]->vel[i] = perp.a[i];
+	collision.disks[0]->ang_vel = angv;
+}
+
+
+
+
+void Disks::processInnerWallCollision(Collision& collision){
+
+
+
+	Disk s = *(collision.disks[0]);
 	vec rad(s.pos[0]-boundpos[0],s.pos[1]-boundpos[1]);
+
+
+	double angv = s.ang_vel;
+	vec bv(boundvel);
+
+	
+
 	double radNorm = rad.norm();
 	rad = rad.times(1/radNorm); //rad is normal.
 	
@@ -374,19 +505,25 @@ void Disks::processWallCollision(Collision& collision){
 	}else{
 		normPar = par.times(1.0/parnorm);
 	}
-	double t = (parnorm+angv)/(2*damp);
+	double t = (parnorm+angv+inner_vel)/(3*damp);
 	if(wmu==0){
 		t=0;
 	}
 	t = fmin(t, 1);
 	vec newPar = par.minus(normPar.times(t*damp));
 	angv -= t*damp;
+	inner_vel -= t*damp;
 	perp = perp.add(newPar);
 	perp = perp.add(bv);
 	for(int i=0; i<2; i++) collision.disks[0]->vel[i] = perp.a[i];
 	collision.disks[0]->ang_vel = angv;
 	//std::cout<<collision.disks[0]->ang_vel<<std::endl;
 }
+
+
+
+
+
 
 
 void Disks::swirl(){

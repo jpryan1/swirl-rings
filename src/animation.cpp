@@ -328,47 +328,42 @@ void Animation::draw(){
 void Animation::drawShapes(){
 	
 	
-	glBindVertexArray(b_VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, b_VBO);
+	glBindVertexArray(s_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, s_VBO);
 	lock.lock();
+
 	glUniform4f(colorLoc, 0.8f, 0.8f, 0.8f, 1.0f);
 	if(M_FRAME){
-		bound.draw(0, 0, 0);
-		bound.draw(boundpos[0]-55,boundpos[1]-40,-100);
+		circle.draw(0, 0, 0,30);
+		circle.draw(boundpos[0]-55,boundpos[1]-40,-100,30);
 		
 	}else{
-		bound.draw(boundpos[0], boundpos[1], 0);
-	}
-	
-	
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	
-	
-	
-	
-	
+		circle.draw(boundpos[0], boundpos[1], 0,20);
 
-	
-	
-	
-	glBindVertexArray(m_VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+	}
+
+
+	// glUniform4f(colorLoc, 0.6f, 0.6f, 0.6f, 0.6f);
+	// if(M_FRAME){
+	// 	circle.draw(0, 0, 0,20);
+	// 	circle.draw(boundpos[0]-55,boundpos[1]-40,-99,20);
+		
+	// }else{
+	// 	circle.draw(boundpos[0], boundpos[1], 0.1,20);
+
+	// }
+
+
 	glUniform4f(colorLoc, 1.0f, 0.2f, 0.2f, 1.0f);
 	
 	if(M_FRAME){
-		m_ball.draw(boundpos[0] + 9.1*cos((M_PI/6.0)*total_time - (M_PI/2.0)) - 55,
-					boundpos[1] + 9.1*sin((M_PI/6.0)*total_time - (M_PI/2.0)) - 40, -99.8);
-		m_ball.draw(0, -9.1, 0.01);
+		circle.draw(boundpos[0] + 9.1*cos((M_PI/6.0)*total_time - (M_PI/2.0)) - 55,
+					boundpos[1] + 9.1*sin((M_PI/6.0)*total_time - (M_PI/2.0)) - 40, -99.8,1);
+		circle.draw(0, -9.1, 0.01,1);
 	}
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	
-	
 
 	
-	glBindVertexArray(s_VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, s_VBO);
+
 	glUniform4f(colorLoc, 0.3f, 0.3f, 1.0f, 1.0f);
 	if(M_FRAME){
 		
@@ -381,15 +376,15 @@ void Animation::drawShapes(){
 //		
 		circle.draw(nx,
 					 ny,
-					 0.01 );
+					 0.01,1 );
 			
-			circle.draw(disks[i].pos[0]-55,disks[i].pos[1]-40,-99.9);
+			circle.draw(disks[i].pos[0]-55,disks[i].pos[1]-40,-99.9,1);
 		
 		}
 	}
 	else{
 		for(int i=0; i< num_of_disks; i++){
-			circle.draw(disks[i].pos[0], disks[i].pos[1], 0.01);
+			circle.draw(disks[i].pos[0], disks[i].pos[1], 0.01,1);
 		}
 	}
 	
@@ -424,6 +419,7 @@ void Animation::setDisks(Disk* d, double* b, double* v){
 	boundpos[1] = b[1];
 	boundvel[0] = v[0];
 	boundvel[1] = v[1];
+
 	lock.unlock();
 	
 }

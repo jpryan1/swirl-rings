@@ -24,7 +24,7 @@ public:
 	static GLuint modelLoc;
 	Circle(){}
 	Circle(double r);
-	void draw(GLfloat a, GLfloat b, GLfloat c);//, GLfloat c);
+	void draw(GLfloat a, GLfloat b, GLfloat c, GLfloat scale);//, GLfloat c);
 private:
 	double radius;
 };

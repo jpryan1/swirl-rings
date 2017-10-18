@@ -14,7 +14,8 @@
 #include "animation.h"
 #include "Collision.h"
 
-
+#define DO_ANNULUS 0
+#define GAS 0
 class Collision;
 
 
@@ -26,14 +27,14 @@ class Disks{
 		//Time interval between "swirl collisions"
 		const double swirl_interval = 1;
 		//Radius of boundary
-		const double boundrad = 30;
+		const double boundrad = 20;
 		//Angle of swirl collision. For example, pi/6 means
 		//the boundary traces a dodecagonal path
 		const double swirl_angle = 3.14159265359 / 6;
 		//Marble/Marble friction parameter
-	const double mu = 1;
+	const double mu = 10;
 		//Marble/Wall friction parameter
-	const double wmu = 0.1;
+	const double wmu = 10;
 	
 	
 	//Set by the main function in RotationSim.cpp depending on whether we're animating
@@ -64,6 +65,7 @@ class Disks{
 	
 		//Iterates through all disks, adds next disk/disk collision
 		void checkDiskCollisions( std::vector<Collision>& currentCollisions );
+		void fillCells();
 		//Iterates through all disks, adds next disk/wall collision
 		void checkWallCollisions( std::vector<Collision>& currentCollisions );
 		//Adds a swirl collision
@@ -77,6 +79,7 @@ class Disks{
 		void processCollision(Collision& collision);
 		void processNormalCollision(Collision& collision);
 		void processWallCollision(Collision& collision);
+		void processInnerWallCollision(Collision& collision);
 		void swirl();
 	
 	
@@ -93,7 +96,12 @@ class Disks{
 	Disk* disks;
 	
 	private:
-	
+		double inner_ang;
+		double inner_vel;
+
+		std::vector<int>* cells;
+		int nbinx;
+
 		int num_of_disks;
 	
 		Stats stats;

@@ -3,7 +3,7 @@
 #define  _ANIMATION_H_
 
 #define GLEW_STATIC
-#define DELTA_T 0.000003
+#define DELTA_T 1e-4
 #include <iostream>
 #include "circle.h"
 #include <mutex>
@@ -12,7 +12,7 @@
 #include "disk.h"
 #include "cross.h"
 #include <assert.h>
-#define M_FRAME 0
+#define M_FRAME 0 
 
 class Animation{
 	public:

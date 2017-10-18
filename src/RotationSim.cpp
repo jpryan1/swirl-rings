@@ -91,10 +91,8 @@ void simulation(int NUM_OF_DISKS){
 	double total_ang_vel = 0;
 	double total_time=0;
 	for(int iterations = 0; iterations<NUM_OF_ITERATIONS; iterations++){
-		if(iterations%1000000==0) std::cout<<iterations<<std::endl;
 		disks.nextCollisions(currentCollisions);
 		//fill the currentCollisions vector with the next collisions.
-		
 		disks.updatePositions(currentCollisions[0].getTime());
 		total_time +=currentCollisions[0].getTime();
 		//move everyone to their next position, record time

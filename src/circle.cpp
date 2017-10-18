@@ -27,10 +27,12 @@ Circle::Circle(double radius){
 }
 
 
-void Circle::draw(GLfloat a, GLfloat b, GLfloat c){//, GLfloat c){
+void Circle::draw(GLfloat a, GLfloat b, GLfloat c, GLfloat scale){//, GLfloat c){
 	
 	glm::mat4 transform;
 	transform = glm::translate(transform, glm::vec3(a,b,c));
+	transform = glm::scale(transform, glm::vec3(scale, scale, scale));
+	
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(transform));
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, (GLvoid*) 0);
 }
