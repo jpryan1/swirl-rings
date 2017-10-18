@@ -14,8 +14,8 @@
 #include "animation.h"
 #include "Collision.h"
 
-#define DO_ANNULUS 0
-#define GAS 0
+#define DO_ANNULUS 1
+#define GAS 1
 class Collision;
 
 
@@ -25,7 +25,7 @@ class Disks{
 	
 	//Constants
 	const double swirl_interval = 1;
-	const double boundrad = 9.1;
+	const double boundrad = 30;
 	const double swirl_angle = 3.14159265359 / 6;
 	const double mu = 10;
 	const double wmu = 10;

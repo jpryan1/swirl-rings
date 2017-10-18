@@ -61,7 +61,7 @@ Collision Disks::nextWallCollision(Disk& a){
 	}
 	if(DO_ANNULUS){
 		double secondtime;
-		C = pow(dp0,2) + pow(dp1,2) - pow(21, 2);
+		C = pow(dp0,2) + pow(dp1,2) - pow(boundrad-9, 2);
 		det = B*B-4*A*C;
 		if(det<0){
 			secondtime = -1;
@@ -191,15 +191,20 @@ void Disks::checkWallCollisions( std::vector<Collision>& currentCollisions ){
 }
 
 void Disks::checkSwirlCollision( std::vector<Collision>& currentCollisions ){
-	
 	Collision collision(swirl_interval - swirl_time);
-	if(swirl_interval - swirl_time - currentCollisions[0].getTime() < 1e-13){
+
+	if(currentCollisions.size()==0){
+		swirl_time = 0;
+	}
+	else if(swirl_interval - swirl_time - currentCollisions[0].getTime() < 1e-13){
 		//this will evaluate to true only if the swirl will be added
 		swirl_time = 0;
-	}else{
+	}
+	else{
 		swirl_time += currentCollisions[0].getTime();
 	}
 	addCollision( currentCollisions, collision);
+	
 	
 	
 }

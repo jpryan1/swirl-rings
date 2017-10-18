@@ -16,6 +16,7 @@ void Disks::initialize(int N){
 	this->boundpos[0] = 0;
 	this->boundpos[1] = 0;
 	this->boundvel[0] = 2;//0.5;
+	if(DO_ANNULUS) this->boundvel[0] = 0;
 	this->boundvel[1] = 0;
 	this->swirl_time=0;
 	

@@ -338,20 +338,20 @@ void Animation::drawShapes(){
 		circle.draw(boundpos[0]-55,boundpos[1]-40,-100,30);
 		
 	}else{
-		circle.draw(boundpos[0], boundpos[1], 0,20);
+		circle.draw(boundpos[0], boundpos[1], 0,30);
 
 	}
 
 
-	// glUniform4f(colorLoc, 0.6f, 0.6f, 0.6f, 0.6f);
-	// if(M_FRAME){
-	// 	circle.draw(0, 0, 0,20);
-	// 	circle.draw(boundpos[0]-55,boundpos[1]-40,-99,20);
+	 glUniform4f(colorLoc, 0.6f, 0.6f, 0.6f, 0.6f);
+	 if(M_FRAME){
+	 	circle.draw(0, 0, 0,20);
+	 	circle.draw(boundpos[0]-55,boundpos[1]-40,-99,20);
 		
-	// }else{
-	// 	circle.draw(boundpos[0], boundpos[1], 0.1,20);
+	 }else{
+	 	circle.draw(boundpos[0], boundpos[1], 0.1,20);
 
-	// }
+	 }
 
 
 	glUniform4f(colorLoc, 1.0f, 0.2f, 0.2f, 1.0f);
