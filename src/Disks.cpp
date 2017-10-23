@@ -9,9 +9,11 @@ void Disks::initialize(int N){
 	this->num_of_disks = N;
 	disks = new Disk[N];
 
+	//These aren't used now, maybe implemented later
+	nbinx = 1;
+	cells = new std::vector<int>[nbinx*nbinx];
 	
-	cells = new std::vector<int>[30*30];
-	nbinx = 30;
+	
 	//Initialize boundary variables
 	this->boundpos[0] = 0;
 	this->boundpos[1] = 0;

@@ -103,8 +103,8 @@ void Disks::fillCells(){
 		cells[i].clear();
 	}
 	for(int i=0; i<num_of_disks; i++){
-		int binx = (int) floor((30+disks[i].pos[0]-boundpos[0])/2.01);
-		int biny = (int) floor((30+disks[i].pos[1]-boundpos[1])/2.01);
+		int binx = (int) floor((30+disks[i].pos[0]-boundpos[0])/(61.0/nbinx));
+		int biny = (int) floor((30+disks[i].pos[1]-boundpos[1])/(61.0/nbinx));
 		int t = binx + biny*nbinx;
 		assert(t<nbinx*nbinx);
 		cells[t].push_back(i);
@@ -115,67 +115,76 @@ void Disks::fillCells(){
 void Disks::checkDiskCollisions( std::vector<Collision>& currentCollisions ){
 	if(GAS) return;
 	Collision collision;
-	fillCells();
-	std::vector<int> first, second;
-	//FOR EVERY BIN
-	double best_time = 5;
-	int disk1=-1;
-	int disk2 = -1;
-
-
-	//#pragma omp parallel for num_threads(8)
-	for(int k=0;k<nbinx*nbinx; k++){
-		int i = k/nbinx;
-		int j = k%nbinx;
-		//FOR EVERY DISK IN THAT BIN
-			int bin = i+j*nbinx;
-			for(int d =0; d<cells[bin].size(); d++){
-
-			//FOR EVERY SURROUNDING BIN
-			for(int deltax = -1; deltax<=1; deltax++){
-				for(int deltay = -1; deltay <=1; deltay++){
-					int binx = i+deltax;
-					int biny = j+deltay;
-
-					if(binx<0||binx>=nbinx||biny<0||biny>=nbinx){
-						continue;
-					}
-					
-					int otherbin =binx + nbinx*biny;
-					//FOR EVERY DISK IN THAT SURROUNDING BIN
-					for(int oth =0; oth<cells[otherbin].size(); oth++){
-						first = cells[bin];
-						second = cells[otherbin];
-						int a = first[d];
-						
-						int b = second[oth];
-
-						if(a<b){
-							
-							collision = nextDiskCollision(disks[a], disks[b]);
-							double t = collision.getTime();
-							if(t != -1){ 
-								if(best_time>t){
-									//#pragma omp atomic
-									best_time = t;
-									//#pragma omp atomic
-									disk1 = a;
-									//#pragma omp atomic
-									disk2 = b;
-								}
-							}
-						}	
-					}
-				}
-			}
+	for(int i=0; i<num_of_disks-1; i++){
+		for(int j=i+1; j<num_of_disks; j++){
+			collision = nextDiskCollision(disks[i],disks[j]);
+			if(collision.getTime()!=-1) addCollision(currentCollisions, collision);
 		}
 	}
-	if(disk1!=-1){
-		collision = nextDiskCollision(disks[disk1], disks[disk2]);
-		addCollision(currentCollisions, collision);
-
-
-	}
+	
+	//not working, try later.
+//	Collision collision;
+//	fillCells();
+//	std::vector<int> first, second;
+//	//FOR EVERY BIN
+//	double best_time = 5;
+//	int disk1=-1;
+//	int disk2 = -1;
+//
+//
+//	//#pragma omp parallel for num_threads(8)
+//	for(int k=0;k<nbinx*nbinx; k++){
+//		int i = k/nbinx;
+//		int j = k%nbinx;
+//		//FOR EVERY DISK IN THAT BIN
+//			int bin = i+j*nbinx;
+//			for(int d =0; d<cells[bin].size(); d++){
+//
+//			//FOR EVERY SURROUNDING BIN
+//			for(int deltax = -1; deltax<=1; deltax++){
+//				for(int deltay = -1; deltay <=1; deltay++){
+//					int binx = i+deltax;
+//					int biny = j+deltay;
+//
+//					if(binx<0||binx>=nbinx||biny<0||biny>=nbinx){
+//						continue;
+//					}
+//					
+//					int otherbin =binx + nbinx*biny;
+//					//FOR EVERY DISK IN THAT SURROUNDING BIN
+//					for(int oth =0; oth<cells[otherbin].size(); oth++){
+//						first = cells[bin];
+//						second = cells[otherbin];
+//						int a = first[d];
+//						
+//						int b = second[oth];
+//
+//						if(1){
+//							
+//							collision = nextDiskCollision(disks[a], disks[b]);
+//							double t = collision.getTime();
+//							if(t != -1){ 
+//								if(best_time>t){
+//									//#pragma omp atomic
+//									best_time = t;
+//									//#pragma omp atomic
+//									disk1 = a;
+//									//#pragma omp atomic
+//									disk2 = b;
+//								}
+//							}
+//						}	
+//					}
+//				}
+//			}
+//		}
+//	}
+//	if(disk1!=-1){
+//		collision = nextDiskCollision(disks[disk1], disks[disk2]);
+//		addCollision(currentCollisions, collision);
+//
+//
+//	}
 }
 
 

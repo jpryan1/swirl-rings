@@ -419,7 +419,7 @@ void Animation::setDisks(Disk* d, double* b, double* v){
 	boundpos[1] = b[1];
 	boundvel[0] = v[0];
 	boundvel[1] = v[1];
-
+	
 	lock.unlock();
 	
 }
@@ -439,8 +439,9 @@ void Animation::moveDisks(double time){
 			for(int j=0; j<2; j++){
 				disks[i].pos[j] = disks_buffer[i].pos[j] + disks[i].vel[j]*start;
 				disks[i].ang = disks_buffer[i].ang + disks[i].ang_vel*start;
-
+				
 			}
+			
 		}
 		
 		boundpos[0] = boundbuf0 + start*boundvel[0];

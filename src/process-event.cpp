@@ -151,7 +151,7 @@ void Disks::processWallCollision(Collision& collision){
 
 	if(DO_ANNULUS){
 		vec rotatedrad(-(s.pos[1]-boundpos[1]),  s.pos[0]-boundpos[0]);
-		rotatedrad = rotatedrad.times(5.0/rotatedrad.norm());
+		rotatedrad = rotatedrad.times(0.2/rotatedrad.norm());
 		bv = bv.add(rotatedrad);
 	}
 	double radNorm = rad.norm();

@@ -96,7 +96,9 @@ void simulation(int NUM_OF_DISKS){
 		disks.updatePositions(currentCollisions[0].getTime());
 		total_time +=currentCollisions[0].getTime();
 		//move everyone to their next position, record time
-		
+		if(iterations>100){
+			printf("%f %f\n",disks.disks[2].pos[0],disks.disks[2].pos[1]);
+		}
 		
 		for(int i=0; i<currentCollisions.size(); i++){
 			disks.processCollision(currentCollisions[i]);

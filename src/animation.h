@@ -3,7 +3,7 @@
 #define  _ANIMATION_H_
 
 #define GLEW_STATIC
-#define DELTA_T 1e-6
+#define DELTA_T 1e-5
 #include <iostream>
 #include "circle.h"
 #include <mutex>

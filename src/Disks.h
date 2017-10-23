@@ -15,7 +15,7 @@
 #include "Collision.h"
 
 #define DO_ANNULUS 1
-#define GAS 1
+#define GAS 0
 class Collision;
 
 
