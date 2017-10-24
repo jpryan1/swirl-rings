@@ -3,7 +3,7 @@
 #define  _ANIMATION_H_
 
 #define GLEW_STATIC
-#define DELTA_T 1e-5
+#define DELTA_T 1e-3
 #include <iostream>
 #include "circle.h"
 #include <mutex>
@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include "disk.h"
 #include "cross.h"
+#include "vec.h"
 #include <assert.h>
 #define M_FRAME 0 
 
@@ -44,8 +45,7 @@ class Animation{
 	private:
 	double total_time;
 		GLuint s_VBO, s_VAO, s_EBO, shaderProgram, modelLoc, colorLoc, viewLoc;
-		GLuint b_VBO, b_VAO, b_EBO;
-	GLuint m_VBO, m_VAO, m_EBO;
+
 	GLuint x_VBO, x_VAO, x_EBO;
 		int width, height;
 		GLFWwindow* window;

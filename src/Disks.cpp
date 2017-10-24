@@ -26,13 +26,12 @@ void Disks::initialize(int N){
 	std::ifstream input("input.txt", std::ifstream::in);
 	for(int i=0; i<N; i++){
 		input >> disks[i].pos[0] >> disks[i].pos[1] >> disks[i].vel[0] >> disks[i].vel[1];
-		if(GAS) disks[i].vel[1]+=1;
+		disks[i].vel[1]+=-20;
 		disks[i].ID = i;
 		disks[i].ang = 0;
 		disks[i].ang_vel = 0;
-		
-		
-	}
+}
+
 	input.close();
 	
 	

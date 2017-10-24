@@ -7,7 +7,7 @@
 #include "Collision.h"
 #include <ctime>
 
-#define NUM_OF_ITERATIONS 1000000.0
+#define NUM_OF_ITERATIONS 20//1000000.0
 
 void simulation(int N);
 
@@ -92,18 +92,20 @@ void simulation(int NUM_OF_DISKS){
 	double total_time=0;
 	for(int iterations = 0; iterations<NUM_OF_ITERATIONS; iterations++){
 		disks.nextCollisions(currentCollisions);
+
 		//fill the currentCollisions vector with the next collisions.
 		disks.updatePositions(currentCollisions[0].getTime());
 		total_time +=currentCollisions[0].getTime();
 		//move everyone to their next position, record time
-		if(iterations>100){
-			printf("%f %f\n",disks.disks[2].pos[0],disks.disks[2].pos[1]);
-		}
+	
 		
 		for(int i=0; i<currentCollisions.size(); i++){
 			disks.processCollision(currentCollisions[i]);
 			
 		}
+
+
+
 		//update relevant trajectories - bonk!
 		
 		

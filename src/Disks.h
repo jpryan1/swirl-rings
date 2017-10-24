@@ -7,6 +7,7 @@
 #include <fstream>
 #include <vector>
 #include <cmath>
+#include <float.h>
 #include "vec.h"
 #include "type.h"
 #include "disk.h"
@@ -14,8 +15,15 @@
 #include "animation.h"
 #include "Collision.h"
 
+
+#define DISK_MASS 1
+#define DISK_MOMENT 10000
+#define OUTER_WALL_MOMENT DBL_MAX
+#define INNER_WALL_MOMENT 20
+
 #define DO_ANNULUS 1
 #define GAS 0
+#define OUTER_WALL_VEL 5
 class Collision;
 
 
@@ -26,6 +34,7 @@ class Disks{
 	//Constants
 	const double swirl_interval = 1;
 	const double boundrad = 30;
+	const double corridor_length = 10;
 	const double swirl_angle = 3.14159265359 / 6;
 	const double mu = 10;
 	const double wmu = 10;

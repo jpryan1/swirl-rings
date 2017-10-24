@@ -130,15 +130,7 @@ void Animation::generateBuffers(){
 	glGenVertexArrays(1, &s_VAO);
 	glGenBuffers(1, &s_VBO);
 	glGenBuffers(1, &s_EBO);
-	glGenVertexArrays(1, &b_VAO);
-	glGenBuffers(1, &b_VBO);
-	glGenBuffers(1, &b_EBO);
-
 	
-	glGenVertexArrays(1, &m_VAO);
-	glGenBuffers(1, &m_VBO);
-	glGenBuffers(1, &m_EBO);
-
 	
 	glGenVertexArrays(1, &x_VAO);
 	glGenBuffers(1, &x_VBO);
@@ -159,40 +151,6 @@ void Animation::generateBuffers(){
 	//Unbind VAO
 	glBindVertexArray(0);
 	
-	
-	
-	
-	glBindVertexArray(b_VAO);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, b_VBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, b_EBO);
-	
-	
-	// Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//Unbind VAO
-	glBindVertexArray(0);
-	
-	
-	
-	
-	glBindVertexArray(m_VAO);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-	
-	
-	// Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//Unbind VAO
-	glBindVertexArray(0);
-
 	
 	
 	
@@ -229,24 +187,7 @@ void Animation::generateShapes(){
 	//Unbind
 	glBindVertexArray(0);
 	
-	
-	glBindVertexArray(b_VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, b_VBO);
-	
-	bound = Circle(30);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//Unbind
-	glBindVertexArray(0);
-	
-	
-	glBindVertexArray(m_VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	
-	m_ball = Circle(1);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//Unbind
-	glBindVertexArray(0);
-	
+
 	
 	
 	
@@ -415,6 +356,7 @@ void Animation::drawShapes(){
 void Animation::setDisks(Disk* d, double* b, double* v){
 	lock.lock();
 	memcpy(disks, d, sizeof(Disk)*num_of_disks);
+	
 	boundpos[0] = b[0];
 	boundpos[1] = b[1];
 	boundvel[0] = v[0];
@@ -431,23 +373,32 @@ void Animation::moveDisks(double time){
 	double boundbuf0 = boundpos[0];
 	double boundbuf1 = boundpos[1];
 	
-	while(start<time){
+
+	int steps = time/DELTA_T;
+	for(int step = 0; step<steps; step++){
+		double t = (steps-step+0.0)/steps;
+		t = (1-t)*time;
 		lock.lock();
 		//for M-frame
 		total_time = DELTA_T +total_time;
 		for(int i=0; i<num_of_disks; i++){
+
 			for(int j=0; j<2; j++){
-				disks[i].pos[j] = disks_buffer[i].pos[j] + disks[i].vel[j]*start;
-				disks[i].ang = disks_buffer[i].ang + disks[i].ang_vel*start;
+				disks[i].pos[j] = disks_buffer[i].pos[j] + disks[i].vel[j]*t;
+				disks[i].ang = disks_buffer[i].ang + disks[i].ang_vel*t;
 				
 			}
-			
+
+			vec rad(disks[i].pos);
+			rad = rad.times(1.0/rad.norm());
+			vec velv(disks[i].vel);
+			std::cout<<velv.dot(rad)<<std::endl;
 		}
 		
-		boundpos[0] = boundbuf0 + start*boundvel[0];
-		boundpos[1] = boundbuf1 + start*boundvel[1];
+		boundpos[0] = boundbuf0 + t*boundvel[0];
+		boundpos[1] = boundbuf1 + t*boundvel[1];
 		lock.unlock();
-		start+= DELTA_T;
+		
 	}
 	total_time = next_time;
 	
