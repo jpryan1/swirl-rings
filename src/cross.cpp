@@ -37,13 +37,14 @@ Cross::Cross(double radius){
 }
 
 
-void Cross::draw(GLfloat a, GLfloat b, GLfloat c, GLfloat ang){
+void Cross::draw(GLfloat a, GLfloat b, GLfloat c, GLfloat ang, GLfloat scale){
 	
 	glm::mat4 transform;
 	transform = glm::translate(transform, glm::vec3(a,b,c));
 	float angle =(180.0/PI)*ang;
 	transform = glm::rotate(transform,ang, glm::vec3(0,0,1));
-
+	transform = glm::scale(transform, glm::vec3(scale, scale, scale));
+	
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(transform));
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, (GLvoid*) 0);
 }

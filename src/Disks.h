@@ -18,12 +18,11 @@
 
 #define DISK_MASS 1
 #define DISK_MOMENT 10000
-#define OUTER_WALL_MOMENT DBL_MAX
-#define INNER_WALL_MOMENT 20
-
+#define OUTER_WALL_MOMENT INFINITY
+#define INNER_WALL_MOMENT 10
 #define DO_ANNULUS 1
 #define GAS 0
-#define OUTER_WALL_VEL 5
+#define OUTER_WALL_VEL 0.1
 class Collision;
 
 
@@ -36,8 +35,8 @@ class Disks{
 	const double boundrad = 30;
 	const double corridor_length = 10;
 	const double swirl_angle = 3.14159265359 / 6;
-	const double mu = 10;
-	const double wmu = 10;
+	const double mu = 100;
+	const double wmu = 100;
 	
 	//Set by the main function in RotationSim.cpp depending on
 	//whether we're animating
@@ -91,10 +90,11 @@ class Disks{
 	//The disks!
 	Disk* disks;
 	
-	private:
-		double inner_ang;
-		double inner_vel;
+	double inner_ang;
+	double inner_vel;
+	
 
+	private:
 		std::vector<int>* cells;
 		int nbinx;
 

@@ -7,7 +7,7 @@
 #include "Collision.h"
 #include <ctime>
 
-#define NUM_OF_ITERATIONS 20//1000000.0
+#define NUM_OF_ITERATIONS 1000000.0
 
 void simulation(int N);
 
@@ -91,6 +91,11 @@ void simulation(int NUM_OF_DISKS){
 	double total_ang_vel = 0;
 	double total_time=0;
 	for(int iterations = 0; iterations<NUM_OF_ITERATIONS; iterations++){
+
+		if(iterations%500==0){
+			std::cout<<disks.inner_vel<<std::endl;
+		}
+		
 		disks.nextCollisions(currentCollisions);
 
 		//fill the currentCollisions vector with the next collisions.

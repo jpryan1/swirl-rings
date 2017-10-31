@@ -261,7 +261,7 @@ void Animation::draw(){
 	glDeleteBuffers(1, &s_VBO);
 	glDeleteBuffers(1, &s_EBO);
 	glfwTerminate();
-	
+	exit(0);
 }
 
 
@@ -303,8 +303,6 @@ void Animation::drawShapes(){
 		circle.draw(0, -9.1, 0.01,1);
 	}
 
-	
-
 	glUniform4f(colorLoc, 0.3f, 0.3f, 1.0f, 1.0f);
 	if(M_FRAME){
 		
@@ -330,6 +328,12 @@ void Animation::drawShapes(){
 	}
 	
 
+	
+	
+	
+	glUniform4f(colorLoc, 0.3f, 0.0f, 0.5f, 1.0f);
+	circle.draw(31*cos(oa), 31*sin(oa), 0, 1);
+	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 	
@@ -340,10 +344,13 @@ void Animation::drawShapes(){
 	glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
 	if(!M_FRAME){
 		for(int i=0; i<num_of_disks; i++){
-			cross.draw(disks[i].pos[0], disks[i].pos[1], 0.02, disks[i].ang);// disks[i].ang);
+			cross.draw(disks[i].pos[0], disks[i].pos[1], 0.02, disks[i].ang, 1);// disks[i].ang);
 			
 		}
 	}
+	
+	
+	cross.draw(0,0, 0.2, ia,10);
 	lock.unlock();
 	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -353,10 +360,11 @@ void Animation::drawShapes(){
 
 
 
-void Animation::setDisks(Disk* d, double* b, double* v){
+void Animation::setDisks(Disk* d, double* b, double* v, double inner_ang, double inner_vel){
 	lock.lock();
 	memcpy(disks, d, sizeof(Disk)*num_of_disks);
-	
+	ia = inner_ang;
+	iv = inner_vel;
 	boundpos[0] = b[0];
 	boundpos[1] = b[1];
 	boundvel[0] = v[0];
@@ -372,8 +380,8 @@ void Animation::moveDisks(double time){
 	memcpy(disks_buffer, disks, num_of_disks*sizeof(Disk));
 	double boundbuf0 = boundpos[0];
 	double boundbuf1 = boundpos[1];
-	
-
+	double ibuf = ia;
+	double obuf = oa;
 	int steps = time/DELTA_T;
 	for(int step = 0; step<steps; step++){
 		double t = (steps-step+0.0)/steps;
@@ -392,11 +400,13 @@ void Animation::moveDisks(double time){
 			vec rad(disks[i].pos);
 			rad = rad.times(1.0/rad.norm());
 			vec velv(disks[i].vel);
-			std::cout<<velv.dot(rad)<<std::endl;
+			//std::cout<<velv.dot(rad)<<std::endl;
 		}
 		
 		boundpos[0] = boundbuf0 + t*boundvel[0];
 		boundpos[1] = boundbuf1 + t*boundvel[1];
+		ia= ibuf + iv*t;
+		oa = obuf + 0.1*t;
 		lock.unlock();
 		
 	}

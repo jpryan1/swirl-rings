@@ -26,7 +26,7 @@ void Disks::initialize(int N){
 	std::ifstream input("input.txt", std::ifstream::in);
 	for(int i=0; i<N; i++){
 		input >> disks[i].pos[0] >> disks[i].pos[1] >> disks[i].vel[0] >> disks[i].vel[1];
-		disks[i].vel[1]+=-20;
+		disks[i].vel[1]+=-10;
 		disks[i].ID = i;
 		disks[i].ang = 0;
 		disks[i].ang_vel = 0;
@@ -36,7 +36,7 @@ void Disks::initialize(int N){
 	
 	
 	if(animation){
-		animation->setDisks(disks, boundpos, boundvel);
+		animation->setDisks(disks, boundpos, boundvel, inner_ang, inner_vel);
 		animation->notReady = false;
 	}
 	

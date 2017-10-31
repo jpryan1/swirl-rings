@@ -9,7 +9,7 @@ void Disks::updatePositions(double time){
 
 
 	if(animation){
-		animation->setDisks(disks, boundpos, boundvel);
+		animation->setDisks(disks, boundpos, boundvel, inner_ang, inner_vel);
 		animation->moveDisks(time);
 	}
 
@@ -150,7 +150,7 @@ void Disks::processWallCollision(Collision& collision){
 	bool inner;
 	if(radNorm>boundrad-1.1){
 		inner = false;
-		wall_vel = -OUTER_WALL_VEL;
+		wall_vel = OUTER_WALL_VEL;
 		wall_moment = OUTER_WALL_MOMENT;
 	}else{
 		inner=true;
@@ -172,31 +172,61 @@ void Disks::processWallCollision(Collision& collision){
 	double DELTA = 2*perp.norm();
 
 
-	vec r0unit(-rad.a[1], rad.a[0]);
-	vec r0 = par.add(r0unit.times(angv+wall_vel));
-	int s0 = (r0.dot(r0unit) > 0 ? 1 : -1);
-
-	double t = (r0.norm())/(wmu*DELTA*((1.0/DISK_MASS)+(1.0/DISK_MOMENT)+(1.0/wall_moment)));
-	if(wmu==0){
-		t=0;
-	}
-	t=fmin(t,1);
-	double impulse = wmu*s0*DELTA*t;
-	
-
-	vec newPar = par.minus(r0unit.times(impulse/DISK_MASS));
-	angv -= impulse/DISK_MOMENT;
-
-	vec result = perp.add(newPar);
-	result = result.add(bv);
-
-	for(int i=0; i<2; i++) collision.disks[0]->vel[i] = result.a[i];
-	collision.disks[0]->ang_vel = angv;
-	
 	if(inner){
+		
+		vec r0unit=vec(rad.a[1], -rad.a[0]);
+		
+		vec r0 = par.add(r0unit.times(angv+wall_vel*20));
+		int s0 = (r0.dot(r0unit) > 0 ? 1 : -1);
+		
+		double t = (r0.norm())/(wmu*DELTA*((1.0/DISK_MASS)+(1.0/DISK_MOMENT)+(20.0/wall_moment)));
+		if(wmu==0){
+			t=0;
+		}
+		t=fmin(t,1);
+		double impulse = wmu*s0*DELTA*t;
+		
+		
+		vec newPar = par.minus(r0unit.times(impulse/DISK_MASS));
+		angv -= impulse/DISK_MOMENT;
 		inner_vel -= impulse/INNER_WALL_MOMENT;
-	}
+		
+		vec result = perp.add(newPar);
+		result = result.add(bv);
+		
+		for(int i=0; i<2; i++) collision.disks[0]->vel[i] = result.a[i];
+		collision.disks[0]->ang_vel = angv;
 
+		
+
+	}
+	else{
+		vec r0unit=vec(-rad.a[1], rad.a[0]);
+	
+		
+		vec r0 = par.add(r0unit.times(angv-wall_vel*30));
+		int s0 = (r0.dot(r0unit) > 0 ? 1 : -1);
+		
+		double t = (r0.norm())/(wmu*DELTA*((1.0/DISK_MASS)+(1.0/DISK_MOMENT)+(30.0/wall_moment)));
+		if(wmu==0){
+			t=0;
+		}
+		t=fmin(t,1);
+		double impulse = wmu*s0*DELTA*t;
+		
+		
+		vec newPar = par.minus(r0unit.times(impulse/DISK_MASS));
+		angv -= impulse/DISK_MOMENT;
+		vec result = perp.add(newPar);
+		result = result.add(bv);
+		
+		for(int i=0; i<2; i++) collision.disks[0]->vel[i] = result.a[i];
+		collision.disks[0]->ang_vel = angv;
+
+		
+		
+	}
+	
 }
 
 
